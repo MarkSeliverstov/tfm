@@ -2,6 +2,10 @@
 
 TBA..
 
+## Development
+
+<details>
+
 ## Installation
 
 ```bash
@@ -11,7 +15,7 @@ poetry install
 ## Usage
 
 ```bash
-poetry run app
+poetry run tfm
 ```
 
 ## Testing
@@ -26,9 +30,4 @@ pytest -c pyproject.toml
 poetry run poe format-code
 ```
 
-## Pre-commit
-
-```bash
-poetry shell
-pre-commit install
-```
+</details>
