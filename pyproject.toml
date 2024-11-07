@@ -1,16 +1,15 @@
 [tool.poetry]
-name = "template"
+name = "tfm"
 version = "0.1.0"
 description = ""
-authors = ["Name <email@gmail.com>"]
 readme = "README.md"
 packages = [
-    { include = "app", from = "src" },
+    { include = "tfm", from = "src" },
 ]
 include = ["*.conf", "py.typed"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
@@ -22,7 +21,7 @@ pytest-mypy = "^0.10.3"
 pytest-ruff = "^0.4.1"
 
 [tool.poetry.scripts]
-app = "app.__main__:main"
+tfm = "tfm.__main__:main"
 
 [tool.pytest.ini_options]
 addopts = """
