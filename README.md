@@ -1,31 +1,6 @@
-# Python template repository
+# TFM - Telegram Finance Manager
 
-Using:
-
-- `poetry` for dependency management and packaging.
-- `pytest` for testing.
-- `ruff` for formatting.
-- `mypy` for static type checking.
-- `pre-commit` for code quality.
-
-**It includes a basic structure for a Poetry project.**
-
-```bash
-.
-├── src/
-│   └── __init__.py
-│   └── __main__.py
-│   └── py.typed
-├── tests/
-│   └── test.py
-├── pyproject.toml
-├── poetry.lock
-├── README.md
-├── LICENSE
-├── .gitignore
-├── .pre-commit-config.yaml
-├── .dockerignore
-```
+TBA..
 
 ## Installation
 
