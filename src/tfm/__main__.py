@@ -53,6 +53,7 @@ async def echo_handler(message: Message) -> None:
         transcription = openai.audio.transcriptions.create(
             file=file_to_transcribe, model="whisper-1", response_format="text"
         )
+        logger.info(f"Transcribed voice with {transcription=}")
         await message.answer(transcription)
 
     except TypeError:
