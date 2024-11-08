@@ -46,8 +46,12 @@ async def echo_handler(message: Message) -> None:
             await message.answer("Failed to download voice")
             return
         logger.info(f"Downloaded voice with {len(voice_file.read())=}")
+        file_to_transcribe: tuple[str, BinaryIO] = (
+            message.voice.file_id + ".ogg",
+            voice_file,
+        )
         transcription = openai.audio.transcriptions.create(
-            file=voice_file, model="whisper-1", response_format="text"
+            file=file_to_transcribe, model="whisper-1", response_format="text"
         )
         await message.answer(transcription)
 
