@@ -1,11 +1,14 @@
 import asyncio
-from os import getenv
+from os import environ, getenv
 
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
+
+for k, v in environ.items():
+    print(f"{k}: {v}")
 
 # Bot token can be obtained via https://t.me/BotFather
 TOKEN = getenv("BOT_TOKEN")
