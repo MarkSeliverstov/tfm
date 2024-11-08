@@ -10,7 +10,10 @@ packages = [
 include = ["*.conf", "py.typed"]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
+aiogram = "^3.14.0"
+structlog = "^24.4.0"
+openai = "^1.54.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
