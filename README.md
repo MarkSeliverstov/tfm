@@ -1,5 +1,7 @@
 # TFM - Telegram Finance Manager
 
+- [tg bot api](https://core.telegram.org/bots/api)
+
 TBA..
 
 ## Development
