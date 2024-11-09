@@ -13,7 +13,7 @@ dp.message.register(voice_handler, F.voice)
 dp.message.register(cmd_start_handler, CommandStart())
 
 
-def main():
+def main() -> None:
     asyncio.run(dp.start_polling(bot))
 
 
