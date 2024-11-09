@@ -11,4 +11,6 @@ from .spread_sheet_client import SpreadSheetClient
 
 bot: Bot = Bot(token=Config.BOT_TOKEN)
 openai: OpenAI = OpenAI(api_key=Config.OPENAI_API_KEY)
-sheet_client: SpreadSheetClient = SpreadSheetClient(sheet_id=Config.SPREADSHEET_ID)
+sheet_client: SpreadSheetClient = SpreadSheetClient(
+    sheet_id=Config.SPREADSHEET_ID, sa_secret=Config.GOOGLE_SA
+)
