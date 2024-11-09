@@ -12,22 +12,22 @@ include = ["*.conf", "py.typed"]
 [tool.poetry.dependencies]
 python = "^3.11"
 aiogram = "^3.14.0"
-structlog = "^24.4.0"
-openai = "^1.54.3"
 google-api-python-client = "^2.151.0"
+google-auth = "^2.36.0"
 google-auth-httplib2 = "^0.2.0"
 google-auth-oauthlib = "^1.2.1"
-google-auth = "^2.36.0"
+openai = "^1.54.3"
+structlog = "^24.4.0"
 
 [tool.poetry.group.dev.dependencies]
+google-api-python-client-stubs = "^1.28.0"
+google-auth-stubs = "^0.3.0"
 mypy = "^1.13.0"
 poethepoet = "^0.29.0"
 pytest = "^8.3.3"
 pytest-asyncio = "^0.24.0"
 pytest-mypy = "^0.10.3"
 pytest-ruff = "^0.4.1"
-google-api-python-client-stubs = "^1.28.0"
-google-auth-stubs = "^0.3.0"
 
 [tool.poetry.scripts]
 tfm = "tfm.__main__:main"
