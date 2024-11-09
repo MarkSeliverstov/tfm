@@ -1,4 +1,4 @@
-# TFM - Telegram Finance Manager
+# TFM - Telegram Financial Manager
 
 - [tg bot api](https://core.telegram.org/bots/api)
 
