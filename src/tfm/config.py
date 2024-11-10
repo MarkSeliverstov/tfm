@@ -8,3 +8,4 @@ class Config:
     OPENAI_API_KEY: str = os.environ["OPENAI_API_KEY"]
     GOOGLE_SA: dict[str, str] = json.loads(os.environ["GOOGLE_SA"])
     MY_TELEGRAM_ID: int = int(os.environ["MY_TELEGRAM_ID"])
+    DATABASE_DSN: str = os.environ["DATABASE_DSN"]

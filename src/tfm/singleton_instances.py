@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher
 from openai import OpenAI
 
 from .config import Config
+from .database import PostgresDatabase
 from .spread_sheet_client import SpreadSheetClient
 
 dp: Dispatcher = Dispatcher()
@@ -15,3 +16,4 @@ openai: OpenAI = OpenAI(api_key=Config.OPENAI_API_KEY)
 sheet_client: SpreadSheetClient = SpreadSheetClient(
     sheet_id=Config.SPREADSHEET_ID, sa_secret=Config.GOOGLE_SA
 )
+db: PostgresDatabase = PostgresDatabase()

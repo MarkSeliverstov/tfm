@@ -1,12 +1,18 @@
 import asyncio
 
+from .config import Config
 from .handlers import setup
-from .singleton_instances import bot, dp
+from .singleton_instances import bot, db, dp
+
+
+async def start() -> None:
+    await db.setup(dsn=Config.DATABASE_DSN)
+    setup(dp)
+    await dp.start_polling(bot)
 
 
 def main() -> None:
-    setup(dp)
-    asyncio.run(dp.start_polling(bot))
+    asyncio.run(start())
 
 
 if __name__ == "__main__":
