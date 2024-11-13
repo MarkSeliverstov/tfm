@@ -10,6 +10,7 @@ from .cmd_start_handler import cmd_start_handler
 from .database_commands import (
     cmd_add_transaction,
     cmd_add_user,
+    cmd_change_initial_balance,
     cmd_change_transactions_types,
     cmd_get_id,
     cmd_get_transactions_types,
@@ -30,4 +31,4 @@ def setup(dp: Dispatcher) -> None:
     dp.message.register(cmd_add_transaction, Command("add"), user_id_filter)
     dp.message.register(cmd_get_transactions_types, Command("get_types"), user_id_filter)
     dp.message.register(cmd_change_transactions_types, Command("change_types"), user_id_filter)
-    dp.message.register(lambda message: message.answer("Unknown command!"), user_id_filter)
+    dp.message.register(cmd_change_initial_balance, Command("change_balance"), user_id_filter)
