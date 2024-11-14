@@ -81,13 +81,11 @@ async def _get_transaction_data_from_voice(
         },
     )
     if not transaction_data.choices or not transaction_data.choices[0].message.content:
-        logger.error("Failed to extract transaction data")
         raise ValueError("Failed to extract transaction data")
 
-    logger.info(
-        f"Extracted transaction data: {transaction_data.choices[0].message.content} from {transcription=}"
-    )
-    return json.loads(transaction_data.choices[0].message.content)
+    data: TransactionData = json.loads(transaction_data.choices[0].message.content)
+    logger.info(f"Extracted transaction {data=} from {transcription=}")
+    return data
 
 
 @voice_handler_router.message(F.voice)
