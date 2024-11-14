@@ -27,6 +27,15 @@ class DatabaseCommandsMiddleware(BaseMiddleware):
         return await handler(event, data)
 
 
+HELP_TEXT: str = (
+    "Commands:\n"
+    "/start - start the bot\n"
+    "/help - get help\n"
+    "/get_transactions_types - get transactions types\n"
+    "/change_transactions_types - change transactions types (write types separated by new line)"
+)
+
+
 @database_commands_router.message(Command("start"))
 async def cmd_start(message: types.Message, db: PostgresDatabase) -> None:
     assert message.from_user
@@ -45,17 +54,12 @@ async def cmd_start(message: types.Message, db: PostgresDatabase) -> None:
         input_field_placeholder="Choose an command",
         resize_keyboard=True,
     )
-    await message.answer("Hi!", reply_markup=keyboard)
+    await message.answer("Hi!\n" + HELP_TEXT, reply_markup=keyboard)
 
 
 @database_commands_router.message(Command("help"))
 async def cmd_help(message: types.Message) -> None:
-    await message.answer(
-        "/start - start the bot\n"
-        "/help - get help\n"
-        "/get_transactions_types - get transactions types\n"
-        "/change_transactions_types - change transactions types (write types separated by new line)"
-    )
+    await message.answer(HELP_TEXT)
 
 
 @database_commands_router.message(Command("change_transactions_types"))
