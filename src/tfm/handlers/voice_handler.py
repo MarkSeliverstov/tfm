@@ -1,15 +1,36 @@
 import json
 from decimal import Decimal
-from typing import BinaryIO, TypedDict
+from typing import Any, Awaitable, BinaryIO, Callable, Dict, TypedDict
 
-from aiogram.types import Message
+from aiogram import BaseMiddleware, Bot, F, Router
+from aiogram.types import Message, TelegramObject
+from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from structlog import BoundLogger, get_logger
 
+from ..database import PostgresDatabase
 from ..model import User
-from ..singleton_instances import bot, db, openai
 
 logger: BoundLogger = get_logger()
+voice_handler_router = Router()
+
+
+class VoiceHandlerMiddleware(BaseMiddleware):
+    def __init__(self, db: PostgresDatabase, openai: OpenAI, bot: Bot) -> None:
+        self.db: PostgresDatabase = db
+        self.openai: OpenAI = openai
+        self.bot: Bot = bot
+
+    async def __call__(
+        self,
+        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        data["db"] = self.db
+        data["openai"] = self.openai
+        data["bot"] = self.bot
+        return await handler(event, data)
 
 
 class TransactionData(TypedDict):
@@ -18,7 +39,7 @@ class TransactionData(TypedDict):
 
 
 async def _get_transaction_data_from_voice(
-    message: Message, voice_file: BinaryIO, transactions_types: list[str]
+    message: Message, voice_file: BinaryIO, transactions_types: list[str], openai: OpenAI
 ) -> TransactionData:
     assert message.from_user
     assert message.voice
@@ -27,7 +48,7 @@ async def _get_transaction_data_from_voice(
     1. Extract the `amount` of the transaction (positive if income, negative if outcome) in the format of a string.
     2. Extract the `transaction type` (one of {transactions_types})
 
-    If the transaction data is not clear, return `None` for both fields.
+    If the transaction data is not clear, return null value for both fields.
     """
     transcription: str = openai.audio.transcriptions.create(
         file=(message.voice.file_id + ".ogg", voice_file),
@@ -69,7 +90,8 @@ async def _get_transaction_data_from_voice(
     return json.loads(transaction_data.choices[0].message.content)
 
 
-async def voice_handler(message: Message) -> None:
+@voice_handler_router.message(F.voice)
+async def voice_handler(message: Message, db: PostgresDatabase, openai: OpenAI, bot: Bot) -> None:
     try:
         assert message.voice
         assert message.from_user
@@ -90,10 +112,10 @@ async def voice_handler(message: Message) -> None:
             return
 
         transaction_data: TransactionData = await _get_transaction_data_from_voice(
-            message, voice_file, user.transactions_types
+            message, voice_file, user.transactions_types, openai
         )
         if not transaction_data["amount"] or not transaction_data["transaction_type"]:
-            raise ValueError("Failed to extract transaction data, no clear message")
+            raise ValueError("No clear message")
 
         await db.add_transaction(
             user_id=message.from_user.id,

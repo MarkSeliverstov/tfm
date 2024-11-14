@@ -14,7 +14,6 @@ logger: BoundLogger = get_logger()
 
 class PostgresDatabase:
     def __init__(self) -> None:
-        logger.info("Creating database connection pool")
         self.pg_pool: asyncpg.Pool | None = None
 
     @asynccontextmanager
