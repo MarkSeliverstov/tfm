@@ -2,7 +2,7 @@ from .tfm_bot import TFMBot
 
 
 def main() -> None:
-    bot = TFMBot()
+    bot: TFMBot = TFMBot()
     bot()
 
 

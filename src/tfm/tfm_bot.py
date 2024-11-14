@@ -1,10 +1,9 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher
+from asyncpg.connection import os
 from openai import OpenAI
 from structlog import BoundLogger, get_logger
-
-from tfm.config import Config
 
 from .database import PostgresDatabase
 from .handlers.database_commands import DatabaseCommandsMiddleware, database_commands_router
@@ -16,8 +15,8 @@ logger: BoundLogger = get_logger()
 class TFMBot:
     def __init__(self) -> None:
         self.database: PostgresDatabase = PostgresDatabase()
-        self.openai: OpenAI = OpenAI(api_key=Config.OPENAI_API_KEY)
-        self.bot: Bot = Bot(token=Config.BOT_TOKEN)
+        self.openai: OpenAI = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        self.bot: Bot = Bot(token=os.environ["BOT_TOKEN"])
         self.dispatcher: Dispatcher = Dispatcher()
 
     def __call__(self) -> None:
@@ -32,7 +31,7 @@ class TFMBot:
 
     async def setup(self) -> None:
         logger.info("Preparing bot...")
-        await self.database.setup(Config.DATABASE_DSN)
+        await self.database.setup(os.environ["DATABASE_DSN"])
         database_commands_router.message.middleware(DatabaseCommandsMiddleware(self.database))
         voice_handler_router.message.middleware(
             VoiceHandlerMiddleware(self.database, self.openai, self.bot)

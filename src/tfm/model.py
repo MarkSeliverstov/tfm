@@ -6,7 +6,6 @@ from decimal import Decimal
 @dataclass
 class User:
     id: int
-    initial_balance: Decimal
     current_balance: Decimal
     created_at: datetime
     updated_at: datetime
@@ -15,8 +14,9 @@ class User:
 
 @dataclass
 class Transaction:
-    user_id: int
     amount: Decimal
-    transaction_date: datetime
-    transaction_type: str
+    created_at: datetime
     description: str
+
+    def __str__(self) -> str:
+        return f"[{self.created_at.strftime('%Y-%m-%d %H:%M:%S')}] {self.amount} {self.description}"
