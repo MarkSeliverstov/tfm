@@ -17,6 +17,14 @@ Because it's just faster and easier to say "I spent 10 dollars on lunch" than to
 - `balance` - Show your current balance
 - `transactions` - Show your transactions
 
+#### Environment Variables
+
+```bash
+export BOT_TOKEN=""
+export OPENAI_API_KEY=""
+export DATABASE_DSN=""
+```
+
 ## Development
 
 <details>
