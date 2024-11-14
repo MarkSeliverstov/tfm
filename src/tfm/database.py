@@ -7,7 +7,7 @@ from typing import cast
 import asyncpg
 from structlog import BoundLogger, get_logger
 
-from .model import User
+from .model import Transaction, User
 
 logger: BoundLogger = get_logger()
 
@@ -34,14 +34,22 @@ class PostgresDatabase:
 
     async def add_user(self, id: int, initial_balance: float) -> None:
         query: str = """
-        INSERT INTO users (id, initial_balance, current_balance, transactions_types)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO users (id, current_balance, transactions_types)
+        VALUES ($1, $2, $3)
         """
         async with self._acquire() as con:
             try:
-                await con.execute(query, id, initial_balance, initial_balance, [])
+                await con.execute(query, id, initial_balance, [])
             except asyncpg.exceptions.UniqueViolationError:
                 raise ValueError(f"User with id {id} already exists")
+
+    async def get_transactions(self, user_id: int) -> list[Transaction]:
+        query: str = "SELECT * FROM transactions WHERE user_id = $1"
+        async with self._acquire() as con:
+            rows: list[asyncpg.Record] = await con.fetch(query, user_id)
+            return [
+                Transaction(row["amount"], row["created_at"], row["description"]) for row in rows
+            ]
 
     async def change_transactions_types(self, user_id: int, types: list[str]) -> None:
         query: str = """
@@ -52,32 +60,14 @@ class PostgresDatabase:
         async with self._acquire() as con:
             await con.execute(query, user_id, types)
 
-    async def change_initial_balance(self, user_id: int, new_balance: Decimal) -> User:
-        user_data: User | None = await self.get_user(user_id)
-        if not user_data:
-            logger.info(f"User with {user_id=} does not exist")
-            raise ValueError(f"User with id {user_id} does not exist")
-
-        diff: Decimal = new_balance - user_data.initial_balance
-        query: str = """
-        UPDATE users
-        SET initial_balance = initial_balance + $2, current_balance = current_balance + $2
-        WHERE id = $1
-        RETURNING *
-        """
-        async with self._acquire() as con:
-            row: asyncpg.Record | None = await con.fetchrow(query, user_id, diff)
-            assert row
-            return User(**row)
-
-    async def add_transaction(self, user_id: int, amount: Decimal, transaction_type: str) -> None:
+    async def add_transaction(self, user_id: int, amount: Decimal, description: str) -> None:
         update_current_balance_query: str = """
         UPDATE users
         SET current_balance = current_balance + $1
         WHERE id = $2
         """
         insert_transaction_query: str = """
-        INSERT INTO transactions (user_id, amount, type)
+        INSERT INTO transactions (user_id, amount, description)
         VALUES ($1, $2, $3)
         """
         user: User | None = await self.get_user(user_id)
@@ -85,18 +75,10 @@ class PostgresDatabase:
             logger.info(f"User with {user_id=} does not exist")
             raise ValueError(f"User with id {user_id} does not exist")
 
-        existed_types: list[str] = user.transactions_types
-        if transaction_type not in existed_types:
-            logger.info(
-                f"Adding new transaction with {transaction_type=} is not allowed",
-                existed_types=existed_types,
-            )
-            raise ValueError(f"Transaction type {transaction_type} is not valid")
-
         async with self._acquire() as con:
             async with con.transaction():
                 await con.execute(update_current_balance_query, amount, user_id)
-                await con.execute(insert_transaction_query, user_id, amount, transaction_type)
+                await con.execute(insert_transaction_query, user_id, amount, description)
 
     async def get_user(self, id: int) -> User | None:
         query: str = "SELECT * FROM users WHERE id = $1"

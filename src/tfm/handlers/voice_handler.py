@@ -35,18 +35,18 @@ class VoiceHandlerMiddleware(BaseMiddleware):
 
 class TransactionData(TypedDict):
     amount: str | None
-    transaction_type: str | None
+    description: str | None
 
 
 async def _get_transaction_data_from_voice(
-    message: Message, voice_file: BinaryIO, transactions_types: list[str], openai: OpenAI
+    message: Message, voice_file: BinaryIO, openai: OpenAI
 ) -> TransactionData:
     assert message.from_user
     assert message.voice
-    prompt: str = f"""
+    prompt: str = """
     Extract the transaction data from the message:
     1. Extract the `amount` of the transaction (positive if income, negative if outcome) in the format of a string.
-    2. Extract the `transaction type` (one of {transactions_types})
+    2. Extract the `description about transaction` as a key word or phrase.
 
     If the transaction data is not clear, return null value for both fields.
     """
@@ -70,12 +70,9 @@ async def _get_transaction_data_from_voice(
                     "type": "object",
                     "properties": {
                         "amount": {"type": "string"},
-                        "transaction_type": {
-                            "type": "string",
-                            "enum": transactions_types,
-                        },
+                        "description": {"type": "string"},
                     },
-                    "required": ["amount", "transaction_type"],
+                    "required": ["amount", "description"],
                 },
             },
         },
@@ -106,19 +103,19 @@ async def voice_handler(message: Message, db: PostgresDatabase, openai: OpenAI, 
             return
 
         if not user.transactions_types:
-            await message.answer("You have no transactions types, please add them first")
+            await message.answer("You have no transactions types, please add them first. /help for more info")
             return
 
         transaction_data: TransactionData = await _get_transaction_data_from_voice(
-            message, voice_file, user.transactions_types, openai
+            message, voice_file, openai
         )
-        if not transaction_data["amount"] or not transaction_data["transaction_type"]:
+        if not transaction_data["amount"] or not transaction_data["description"]:
             raise ValueError("No clear message")
 
         await db.add_transaction(
             user_id=message.from_user.id,
             amount=Decimal(transaction_data["amount"]),
-            transaction_type=transaction_data["transaction_type"],
+            description=transaction_data["description"],
         )
         amount = (
             f"{transaction_data['amount']}"
@@ -127,7 +124,7 @@ async def voice_handler(message: Message, db: PostgresDatabase, openai: OpenAI, 
         )
         updated_balance: Decimal = user.current_balance + Decimal(transaction_data["amount"])
         await message.answer(
-            f"Transaction: {amount} [{transaction_data['transaction_type']}].\n"
+            f"Transaction: {amount} [{transaction_data['description']}]\n"
             + f"Current balance: {updated_balance}"
         )
     except Exception as exc:
