@@ -1,4 +1,4 @@
-# TFM - Telegram Financial Manager
+# TFM - Telegram Finance Manager
 
 TFM is a Telegram bot that helps you manage your finances. The main feature is
 to **convert your voice messages into transactions using OpenAI's Speech-to-Text
